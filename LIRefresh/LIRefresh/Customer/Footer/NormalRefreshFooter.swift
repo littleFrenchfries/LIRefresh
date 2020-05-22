@@ -62,6 +62,7 @@ class NormalRefreshFooter: RefreshFooter {
     }
     override func placeSubViews() {
         super.placeSubViews()
+        self.circleLayer.isHidden = true
         self.circleLayer.position = CGPoint(x:  self.li.width * 0.5, y: self.li.height * 0.5)
     }
     

@@ -109,8 +109,8 @@ public class NormalRefreshHeader: RefreshHeader {
     public override func placeSubViews() {
         super.placeSubViews()
         //放置Views和Layer
-        self.arrowLayer.position = CGPoint(x: lastUpdatedTimeLabel.li.textWidth*0.5, y: self.frame.height/2)
-        self.circleLayer.position = CGPoint(x: lastUpdatedTimeLabel.li.textWidth*0.5, y: self.frame.height/2)
+        self.arrowLayer.position = CGPoint(x: (self.li.width - lastUpdatedTimeLabel.li.textWidth) * 0.5 - 40, y: self.frame.height/2)
+        self.circleLayer.position = CGPoint(x: (self.li.width - lastUpdatedTimeLabel.li.textWidth) * 0.5 - 40, y: self.frame.height/2)
     }
     
     func setUpCircleLayer() {

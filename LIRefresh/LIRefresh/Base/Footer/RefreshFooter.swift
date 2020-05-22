@@ -74,7 +74,7 @@ public class RefreshFooter: RefreshComponent {
         if indeedScrollView.isDragging {
             self.pullingPercent = pullingPercent
             // Mark:  普通和即将刷新的临界点
-            let normalPullingOffsetY = happenOffSetY + self.li.height
+            let normalPullingOffsetY = happenOffSetY + self.li.height * atuomaticallyRefreshPercent
             switch state {
             // Mark:闲置
             case .idle:
