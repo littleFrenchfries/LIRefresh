@@ -32,7 +32,6 @@ self?.tablview.li.footer?.endRefreshing()
 结束刷新状态才能进行下次刷新  
 
 3. 本库本着轻量化，没有过多的定制化设计，如果想要自定义刷新控件可以继承RefreshHeader或者RefreshFooter  
-* Router主要负责根据URL路径进行跳转的功能：
 * 1. 重写state属性，根据不同状态写出动画或其他，具体状态的变化逻辑，RefreshHeader和RefreshFooter已经写好，不需要去管理，只要关注自己要改进的代码即可    
 ![图3](https://upload-images.jianshu.io/upload_images/6573541-67e2a3bb334a46be.png?imageMogr2/auto-orient/strip|imageView2/2/w/1162)  
 * 2. 重写init初始化方法，在这里修改刷新或加载控件的高度即可，也可修改加载的灵敏度，0.5代表当加载footer出来一半的时候就开始调用加载方法，如下图所示：  
