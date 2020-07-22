@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NormalRefreshFooter: RefreshFooter {
+public class NormalRefreshFooter: RefreshFooter {
     fileprivate let circleLayer = CAShapeLayer()
     fileprivate let strokeColor = UIColor(red: 135.0/255.0, green: 136.0/255.0, blue: 137.0/255.0, alpha: 1.0)
     
@@ -60,7 +60,7 @@ class NormalRefreshFooter: RefreshFooter {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    override func placeSubViews() {
+    public override func placeSubViews() {
         super.placeSubViews()
         self.circleLayer.isHidden = true
         self.circleLayer.position = CGPoint(x:  self.li.width * 0.5, y: self.li.height * 0.5)

@@ -38,7 +38,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             self?.loadMoreData()
         })
         self.tablview.register(UITableViewCell.self, forCellReuseIdentifier: NSStringFromClass(UITableViewCell.self))
-        // Do any additional setup after loading the view.
     }
     /// 加载更多的数据 footer
     private func loadMoreData() {
