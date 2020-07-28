@@ -15,10 +15,11 @@
 		783241EF246CE5A2003F07CC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 783241ED246CE5A2003F07CC /* LaunchScreen.storyboard */; };
 		783241FA246CE5A2003F07CC /* LIRefreshTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783241F9246CE5A2003F07CC /* LIRefreshTests.swift */; };
 		78324205246CE5A2003F07CC /* LIRefreshUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78324204246CE5A2003F07CC /* LIRefreshUITests.swift */; };
+		786D949E24D00D1E00E47E98 /* RefreshComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 786D949D24D00D1E00E47E98 /* RefreshComponent.swift */; };
+		786D94A224D00D6200E47E98 /* RefreshHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 786D94A124D00D6200E47E98 /* RefreshHeader.swift */; };
+		786D94A424D00DBC00E47E98 /* RefreshConst.swift in Sources */ = {isa = PBXBuildFile; fileRef = 786D94A324D00DBC00E47E98 /* RefreshConst.swift */; };
+		786D94A824D010BB00E47E98 /* RefreshFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 786D94A724D010BB00E47E98 /* RefreshFooter.swift */; };
 		78841B6F2472331600713D28 /* UIScrollView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B6E2472331600713D28 /* UIScrollView+Extension.swift */; };
-		78841B712472368C00713D28 /* RefreshComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B702472368C00713D28 /* RefreshComponent.swift */; };
-		78841B73247236BF00713D28 /* RefreshHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B72247236BF00713D28 /* RefreshHeader.swift */; };
-		78841B752473DFE300713D28 /* RefreshFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B742473DFE300713D28 /* RefreshFooter.swift */; };
 		78841B7A247632EC00713D28 /* NormalRefreshHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B79247632EC00713D28 /* NormalRefreshHeader.swift */; };
 		78841B7C247781A000713D28 /* UILabel+Entension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B7B247781A000713D28 /* UILabel+Entension.swift */; };
 		78841B7E2477862E00713D28 /* NormalRefreshFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78841B7D2477862E00713D28 /* NormalRefreshFooter.swift */; };
@@ -58,10 +59,11 @@
 		78324200246CE5A2003F07CC /* LIRefreshUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LIRefreshUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		78324204246CE5A2003F07CC /* LIRefreshUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LIRefreshUITests.swift; sourceTree = "<group>"; };
 		78324206246CE5A2003F07CC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		786D949D24D00D1E00E47E98 /* RefreshComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshComponent.swift; sourceTree = "<group>"; };
+		786D94A124D00D6200E47E98 /* RefreshHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshHeader.swift; sourceTree = "<group>"; };
+		786D94A324D00DBC00E47E98 /* RefreshConst.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshConst.swift; sourceTree = "<group>"; };
+		786D94A724D010BB00E47E98 /* RefreshFooter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshFooter.swift; sourceTree = "<group>"; };
 		78841B6E2472331600713D28 /* UIScrollView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIScrollView+Extension.swift"; sourceTree = "<group>"; };
-		78841B702472368C00713D28 /* RefreshComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshComponent.swift; sourceTree = "<group>"; };
-		78841B72247236BF00713D28 /* RefreshHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshHeader.swift; sourceTree = "<group>"; };
-		78841B742473DFE300713D28 /* RefreshFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshFooter.swift; sourceTree = "<group>"; };
 		78841B79247632EC00713D28 /* NormalRefreshHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalRefreshHeader.swift; sourceTree = "<group>"; };
 		78841B7B247781A000713D28 /* UILabel+Entension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Entension.swift"; sourceTree = "<group>"; };
 		78841B7D2477862E00713D28 /* NormalRefreshFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalRefreshFooter.swift; sourceTree = "<group>"; };
@@ -185,7 +187,8 @@
 		78F98CD6246D1D1C0003423B /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				78841B702472368C00713D28 /* RefreshComponent.swift */,
+				786D94A324D00DBC00E47E98 /* RefreshConst.swift */,
+				786D949D24D00D1E00E47E98 /* RefreshComponent.swift */,
 				78F98CD9246D21DE0003423B /* Footer */,
 				78F98CDA246D21DE0003423B /* Header */,
 				78F98CD8246D21DE0003423B /* Left */,
@@ -211,7 +214,7 @@
 		78F98CD9246D21DE0003423B /* Footer */ = {
 			isa = PBXGroup;
 			children = (
-				78841B742473DFE300713D28 /* RefreshFooter.swift */,
+				786D94A724D010BB00E47E98 /* RefreshFooter.swift */,
 			);
 			path = Footer;
 			sourceTree = "<group>";
@@ -219,7 +222,7 @@
 		78F98CDA246D21DE0003423B /* Header */ = {
 			isa = PBXGroup;
 			children = (
-				78841B72247236BF00713D28 /* RefreshHeader.swift */,
+				786D94A124D00D6200E47E98 /* RefreshHeader.swift */,
 			);
 			path = Header;
 			sourceTree = "<group>";
@@ -368,15 +371,16 @@
 			files = (
 				783241E7246CE59D003F07CC /* ViewController.swift in Sources */,
 				78841B7A247632EC00713D28 /* NormalRefreshHeader.swift in Sources */,
-				78841B752473DFE300713D28 /* RefreshFooter.swift in Sources */,
+				786D949E24D00D1E00E47E98 /* RefreshComponent.swift in Sources */,
 				78841B7E2477862E00713D28 /* NormalRefreshFooter.swift in Sources */,
 				783241E3246CE59D003F07CC /* AppDelegate.swift in Sources */,
+				786D94A224D00D6200E47E98 /* RefreshHeader.swift in Sources */,
 				78F98CE1246D45290003423B /* LI.swift in Sources */,
 				78841B6F2472331600713D28 /* UIScrollView+Extension.swift in Sources */,
 				78F98CDF246D3F4D0003423B /* UIView+Entension.swift in Sources */,
+				786D94A824D010BB00E47E98 /* RefreshFooter.swift in Sources */,
+				786D94A424D00DBC00E47E98 /* RefreshConst.swift in Sources */,
 				783241E5246CE59D003F07CC /* SceneDelegate.swift in Sources */,
-				78841B73247236BF00713D28 /* RefreshHeader.swift in Sources */,
-				78841B712472368C00713D28 /* RefreshComponent.swift in Sources */,
 				78841B7C247781A000713D28 /* UILabel+Entension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

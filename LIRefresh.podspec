@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'LIRefresh'
-  s.version          = '0.0.3'
+  s.version          = '0.0.5'
   s.summary          = 'LIRefresh'
   s.swift_version = '5.1'
 # This description is used to generate tags and improve search results.

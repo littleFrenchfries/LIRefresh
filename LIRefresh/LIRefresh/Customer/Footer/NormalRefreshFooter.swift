@@ -36,7 +36,7 @@ public class NormalRefreshFooter: RefreshFooter {
     public var stateTitles: [RefreshState: String] = [
         .idle: "上拉加载更多",
         .pulling: "松开刷新",
-        .refreshing: ""
+        .refreshing: "加载中..."
     ]
     public override var state: RefreshState {
         willSet {
@@ -60,8 +60,8 @@ public class NormalRefreshFooter: RefreshFooter {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    public override func placeSubViews() {
-        super.placeSubViews()
+    public override func placeSubviews() {
+        super.placeSubviews()
         self.circleLayer.isHidden = true
         self.circleLayer.position = CGPoint(x:  self.li.width * 0.5, y: self.li.height * 0.5)
     }

@@ -106,8 +106,8 @@ public class NormalRefreshHeader: RefreshHeader {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    public override func placeSubViews() {
-        super.placeSubViews()
+    public override func placeSubviews() {
+        super.placeSubviews()
         //放置Views和Layer
         self.arrowLayer.position = CGPoint(x: (self.li.width - lastUpdatedTimeLabel.li.textWidth) * 0.5 - 40, y: self.frame.height/2)
         self.circleLayer.position = CGPoint(x: (self.li.width - lastUpdatedTimeLabel.li.textWidth) * 0.5 - 40, y: self.frame.height/2)

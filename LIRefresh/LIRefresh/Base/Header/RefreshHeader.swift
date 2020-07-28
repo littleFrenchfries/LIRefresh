@@ -1,100 +1,154 @@
 //
-//  RefreshHeader.swift
-//  LIRefresh
+//  GRefreshHeader.swift
+//  GRefresh
 //
-//  Created by wangxu on 2020/5/18.
-//  Copyright © 2020 wangxu. All rights reserved.
+//  Created by hyku on 2018/1/30.
+//  Copyright © 2018年 hyku. All rights reserved.
 //
 
 import UIKit
 
-public class RefreshHeader: RefreshComponent {
-    public override var state: RefreshState {
-        willSet {
-            guard var indeedScrollView = self.scrollView else { return }
-            if newValue == .refreshing {
-                UIView.animate(withDuration: 0.3, animations: {
-                    indeedScrollView.li.top = self.li.height
-                    var offset = indeedScrollView.contentOffset
-                    offset.y = -self.li.height
-                    indeedScrollView.setContentOffset(offset, animated: false)
-                }) { (finish) in
-                    
-                }
-            }else if newValue == .idle {
-                UIView.animate(withDuration: 0.3, animations: {
-                    indeedScrollView.li.top = 0
-                }) { (finish) in
-                    
-                }
-            }
-        }
-    }
-   
+open class RefreshHeader: RefreshComponent {
     
-    public override init(frame: CGRect) {
-        super.init(frame: frame)
-        var sf = self
-        sf.li.height = 50
-    }
+    var insetTDelta : CGFloat = 0.0
+    
+    
     // MARK: - 构造方法
-    public static func headerWithRefreshing(block: @escaping RefreshComponentRefreshingBlock) -> RefreshHeader {
-        let header = self.init()
+    class func headerWithRefreshing(block:@escaping RefreshComponentRefreshingBlock) -> RefreshHeader {
+        let header:RefreshHeader = self.init()
         header.refreshingBlock = block
-        return header
+        return header;
     }
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    // MARK: - 覆盖父类的方法
+    override func prepare() {
+        super.prepare()
+        self.height = RefreshConst.refreshHeaderHeight
     }
-    public override func placeSubViews() {
-        super.placeSubViews()
-        var sf = self
-        sf.li.y = -self.li.height
+    
+    override func placeSubviews() {
+        super.placeSubviews()
+        // 设置y值(当自己的高度发生改变了，肯定要重新调整Y值，所以放到placeSubviews方法中设置y值)
+        self.y = -self.height
+    }
+    
+    override func scrollViewContentOffsetDidChange(change: [NSKeyValueChangeKey : Any]) {
+        super.scrollViewContentOffsetDidChange(change: change)
         
-    }
-    public override func scrollViewContentOffsetDid(change: [NSKeyValueChangeKey : Any]) {
-        super.scrollViewContentOffsetDid(change: change)
-        // Mark:  如果正在刷新，直接返回
-        if self.state == .refreshing { return }
-        guard let indeedScrollView = self.scrollView else { return }
-        // Mark:  当前contentOffset
-        let offsetY = indeedScrollView.li.offsetY
-        let pullingPercent = (-offsetY) / self.li.height
-        if indeedScrollView.isDragging {
-            self.pullingPercent = pullingPercent
-            // Mark:  普通和即将刷新的临界点
-            let normalPullingOffsetY =  -self.li.height
+        guard let scrollV = self.scrollView else {
+            return
+        }
+        
+        let originalInset = self.scrollViewOriginalInset
+        
+        if state == .refreshing {
+            guard let _ = self.window else {
+                return
+            }
+            // 考虑SectionHeader停留时的高度
+            var insetT: CGFloat = (-scrollV.offsetY > originalInset.top) ? -scrollV.offsetY : originalInset.top
+            insetT = (insetT > self.height + originalInset.top) ? (self.height + originalInset.top) : insetT
+            
+            scrollV.insetTop = insetT
+            self.insetTDelta = originalInset.top - insetT
+            
+            return
+        }
+        // 跳转到下一个控制器时，contentInset可能会变
+        self.scrollViewOriginalInset = scrollV.inset
+        
+        // 当前的contentOffset
+        let offsetY: CGFloat = scrollV.offsetY
+        // 头部控件刚好出现的offsetY
+        let headerInOffsetY: CGFloat = -originalInset.top
+        
+        // 如果是向上滚动头部控件还没出现，直接返回
+        guard offsetY <= headerInOffsetY else {
+            return
+        }
+        
+        // 普通 和 即将刷新 的临界点
+        let idle2pullingOffsetY: CGFloat = headerInOffsetY - self.height
+        
+        if scrollV.isDragging {
             switch state {
-            // Mark:闲置
             case .idle:
-                if offsetY < normalPullingOffsetY {
-                    state = .pulling
+                if offsetY <= headerInOffsetY {
+                    self.state = .pulling
                 }
-                break
-            // Mark:  松开就可以刷新
             case .pulling:
-                if offsetY >= normalPullingOffsetY {
-                    state = .idle
+                if offsetY <= idle2pullingOffsetY {
+                    self.state = .willRefresh
+                } else {
+                    self.pullingPercent = (headerInOffsetY - offsetY) / self.height
                 }
-                break
+            case .willRefresh:
+                if offsetY > idle2pullingOffsetY {
+                    self.state = .idle
+                }
             default: break
             }
-        }else if state == .pulling {
-            // Mark:  调用刷新
-            beginRefreshing()
-            if let block = refreshingBlock {
-                block()
+        } else {
+            // 停止Drag && 并且是即将刷新状态
+            if state == .willRefresh {
+                // 开始刷新
+                self.pullingPercent = 1.0
+                // 只要正在刷新，就完全显示
+                if self.window != nil {
+                    self.state = .refreshing
+                } else {
+                    // 预防正在刷新中时，调用本方法使得header inset回置失败
+                    if state != .refreshing {
+                        self.state = .willRefresh
+                        // 刷新(预防从另一个控制器回到这个控制器的情况，回来要重新刷新一下)
+                        self.setNeedsDisplay()
+                    }
+                }
             }
-        }else if pullingPercent < 1 {
-            self.pullingPercent = pullingPercent
+        }
+    }
+
+    override var state: RefreshState{
+        didSet{
+            if oldValue == state {
+                return
+            }
+            super.state = state
+            
+             // 根据状态做事情
+            if state == .idle {
+                if(oldValue != .refreshing){return}
+                // 恢复Inset
+                UIView.animate(withDuration: RefreshConst.slowAnimationDuration, animations: {
+                    self.scrollView?.insetTop += self.insetTDelta
+                }, completion: { (isFinish) in
+                    self.pullingPercent = 0.0;
+                    
+                    if (self.endRefreshingCompletionBlock != nil) {
+                        self.endRefreshingCompletionBlock!();
+                    }
+                })
+            }else if(state == .refreshing){
+                DispatchQueue.main.async {
+                    UIView.animate(withDuration: RefreshConst.fastAnimationDuration, animations: {
+
+                        let top: CGFloat = self.scrollViewOriginalInset.top + self.height
+                        // 增加滚动区域top
+                        self.scrollView?.insetTop = top
+                        // 设置滚动位置
+                        self.scrollView?.contentOffset = CGPoint(x: 0, y: -top)
+                    }, completion: { (isFinish) in
+                        // 执行刷新操作
+                        self.executeRefreshingCallback()
+                    })
+                }
+            }
         }
     }
     
-    public override func scrollViewContentSizeDid(change: [NSKeyValueChangeKey : Any]?) {
-        super.scrollViewContentSizeDid(change: change)
-    }
-    public override func scrollViewPanStateDid(change: [NSKeyValueChangeKey : Any]) {
-        super.scrollViewPanStateDid(change: change)
+    override func endRefreshing() {
+        DispatchQueue.main.async {
+            self.state = .idle;
+        }
     }
 }

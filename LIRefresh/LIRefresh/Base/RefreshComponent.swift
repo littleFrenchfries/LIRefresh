@@ -1,131 +1,230 @@
 //
-//  RefreshComponent.swift
+//  RefreshFooter.swift
 //  LIRefresh
 //
-//  Created by wangxu on 2020/5/18.
+//  Created by wangxu on 2020/5/19.
 //  Copyright © 2020 wangxu. All rights reserved.
 //
 
 import UIKit
 
 public enum RefreshState {
-    // Mark:闲置
+    
+    /// 普通闲置状态
     case idle
-    // Mark:  松开就可以刷新
+    
+    /// 松开就可以进行刷新的状态
     case pulling
-    // Mark:  刷新中
-    case refreshing
-    // Mark:  即将刷新
+    
+    /// 即将刷新的状态
     case willRefresh
-    // Mark:  所有数据加载完毕 没有更过数据
-    case nomoreData
-    // Mark:  初始状态 刚创建的时候 状态会从none--->idle
-    case none
+    
+    /// 正在刷新中的状态
+    case refreshing
+    
+    /// 所有数据加载完毕，没有更多的数据了
+    case noMoreData
 }
 
+/// 进入刷新状态的回调
+typealias RefreshComponentRefreshingBlock = () -> (Void)
 
-public class RefreshComponent: UIView {
-    public static let contentOffset = "contentOffset"
-    public static let contentInSet = "contentInset"
-    public static let contentSize = "contentSize"
-    public static let panState = "state"
-    /// 正在刷新的回调
-    public typealias RefreshComponentRefreshingBlock = () -> Void
-    // MARK: - 属性
-    public var refreshingBlock: RefreshComponentRefreshingBlock?
-    // Mark:  父控件
-    public weak var scrollView: UIScrollView?
-    // Mark:  手势
-    private var pan: UIPanGestureRecognizer?
-    // Mark:  记录scrollview刚开始的inset
-    var scrollViewOriginalInset: UIEdgeInsets = UIEdgeInsets.zero
-    // Mark:  拖拽百分比
-    open var pullingPercent: CGFloat = 0.0
-    public var state: RefreshState = .none
+/// 开始刷新后的回调(进入刷新状态后的回调)
+typealias RefreshComponentBeginRefreshingCompletionBlock = () -> (Void)
+
+///  结束刷新后的回调
+typealias RefreshComponentEndRefreshingCompletionBlock = () -> (Void)
+
+open class RefreshComponent: UIView {
+
+    ///  刷新状态 一般交给子类内部实现
+    var state : RefreshState = .idle{
+        
+        didSet{
+            /// 加入主队列的目的是等setState:方法调用完毕、设置完文字后再去布局子控件
+            DispatchQueue.main.async {
+                self.setNeedsLayout()
+            }
+        }
+    }
+    
+    private var pan: UIPanGestureRecognizer!
+    
+    /// 刷新回调
+    var refreshingBlock : RefreshComponentRefreshingBlock?
+    
+    /// 开始刷新后的回调(进入刷新状态后的回调)
+    var beginRefreshingCompletionBlock : RefreshComponentBeginRefreshingCompletionBlock?
+    
+    /// 结束刷新的回调
+    var endRefreshingCompletionBlock : RefreshComponentEndRefreshingCompletionBlock?
+
+    /// 拉拽的百分比(交给子类重写)
+    var pullingPercent : CGFloat = 0.0
+    
+    /// 父控件
+    public var scrollView: UIScrollView?
+    
+    /// 记录scrollView刚开始的inset
+    public var scrollViewOriginalInset: UIEdgeInsets = UIEdgeInsets.zero
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
-        autoresizingMask = [.flexibleWidth]
-        backgroundColor = .clear
-        state = .idle
+        self.prepare()
+        self.state = .idle
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    public override func layoutSubviews() {
+    
+    open override func layoutSubviews() {
+        self.placeSubviews()
         super.layoutSubviews()
-        self.placeSubViews()
     }
-    public override func willMove(toSuperview newSuperview: UIView?) {
-        super.willMove(toSuperview: newSuperview)
-        removeObservers()
-        guard let superView = newSuperview as? UIScrollView  else { return }
-        scrollView = superView
-        addObservers()
-        // Mark:  新父控件
-        // Mark:  宽
-        var sf = self
-        sf.li.width = superView.li.width
-        // Mark:  位置
-        sf.li.x = 0
-        // Mark:  设置永远支持垂直弹簧效果 否则不会触发delegate方法，kvo失效
-        scrollView?.alwaysBounceVertical = true
-        // Mark:  记录最开始的icontentInset
-        scrollViewOriginalInset = superView.contentInset
-    }
-    // MARK: - observers
-    /// 添加监听
-    func addObservers() {
-        let options: NSKeyValueObservingOptions = [.new, .old]
-        scrollView?.addObserver(self, forKeyPath: RefreshComponent.contentOffset , options: options, context: nil)
-        scrollView?.addObserver(self, forKeyPath: RefreshComponent.contentSize, options: options, context: nil)
-        pan = self.scrollView?.panGestureRecognizer
-        pan?.addObserver(self, forKeyPath: RefreshComponent.panState, options: options, context: nil)
-    }
-    /// 移除监听
-    func removeObservers() {
-        guard superview is UIScrollView else { return }
-        superview?.removeObserver(self, forKeyPath: RefreshComponent.contentOffset)
-        superview?.removeObserver(self, forKeyPath: RefreshComponent.contentSize)
-        pan?.removeObserver(self, forKeyPath: RefreshComponent.panState)
-        pan = nil
-    }
-    /// kvo
-    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        
-        if !self.isUserInteractionEnabled || self.isHidden { return }
-        guard let path = keyPath as NSString? else { return }
-        
-        if let change = change, path.isEqual(to: RefreshComponent.contentOffset) {
-            self.scrollViewContentOffsetDid(change: change)
-        } else if let change = change, path.isEqual(to: RefreshComponent.contentSize) {
-            self.scrollViewContentSizeDid(change: change)
-        } else if let change = change, path.isEqual(to: RefreshComponent.panState) {
-            self.scrollViewPanStateDid(change: change)
+    
+    open override func draw(_ rect: CGRect) {
+        super.draw(rect)
+        if self.state == .willRefresh {
+            //预防view还没显示出来就调用了beginRefreshing
+            self.state = .refreshing
         }
     }
+    
     // MARK: - 刷新状态控制
-    public func beginRefreshing() {
-        UIView.animate(withDuration: 0.3) {
-            self.alpha = 1.0
-        }
+    ///  进入刷新状态
+    func beginRefreshing() {
         self.pullingPercent = 1.0
-        // 只要正在刷新 就完全显示
-        self.state = .refreshing
-    }
-    // 结束刷新
-    public func endRefreshing() {
-        DispatchQueue.main.async {
-            self.state = .idle
+        if (self.window != nil) {
+            self.state = .refreshing
+        }else{
+            // 预防正在刷新中时，调用本方法使得header inset回置失败
+            if(self.state != .refreshing){
+                self.state = .willRefresh
+                // 刷新(预防从另一个控制器回到这个控制器的情况，回来要重新刷新一下)
+                self.setNeedsDisplay()
+            }
         }
     }
-    /// 摆放子控件的frame
-    open func placeSubViews() {}
+    func beginRefreshing(completionBlock:@escaping RefreshComponentBeginRefreshingCompletionBlock){
+        self.beginRefreshingCompletionBlock = completionBlock
+        self.beginRefreshing()
+    }
+    
+    /// 结束刷新状态
+    func endRefreshing() {
+        self.state = .idle
+    }
+    func endRefreshing(completionBlock:@escaping RefreshComponentEndRefreshingCompletionBlock){
+        self.endRefreshingCompletionBlock = completionBlock
+        self.endRefreshing()
+    }
+    
+    
+    /// 是否正在刷新
+    func isRefreshing() -> Bool {
+        return self.state == .refreshing || self.state == .willRefresh
+    }
+    
+    
+    // MARK: - 交给子类们去实现
+    /// 初始化
+    func prepare() {
+        // 基本属性
+        self.autoresizingMask = UIView.AutoresizingMask.flexibleWidth
+        self.backgroundColor = UIColor.clear
+    }
+    
+    func executeRefreshingCallback() {
+        if ((self.refreshingBlock) != nil) {
+            self.refreshingBlock!();
+        }
+        if ((self.beginRefreshingCompletionBlock) != nil) {
+            self.beginRefreshingCompletionBlock!();
+        }
+    }
+    
+    /// 摆放子控件frame
+    func placeSubviews() { }
+    
     /// 当scrollView的contentOffset发生改变的时候调用
-    open func scrollViewContentOffsetDid(change: [NSKeyValueChangeKey: Any]) {}
-    /// 当scrollView的contentSize发生改变的时候调用
-    open func scrollViewContentSizeDid(change: [NSKeyValueChangeKey: Any]?) {}
-    /// 当scrollView的拖拽状态发生改变的时候调用
-    open func scrollViewPanStateDid(change: [NSKeyValueChangeKey: Any]) {}
+    func scrollViewContentOffsetDidChange(change: [NSKeyValueChangeKey : Any]) {
+        
+    }
+    /// 当scrollView的contentSize发生改变的时候调用 
+    func scrollViewContentSizeDidChange(change: [NSKeyValueChangeKey : Any]?){
+        
+    }
+    
+    func scrollViewPanStateDidChange(change: [NSKeyValueChangeKey : Any]?){
+        
+    }
+    
+    // MARK: - 其他
+    open override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        
+        // 如果不是UIScrollView，不做任何事情
+        guard newSuperview is UIScrollView else {
+            return
+        }
+        
+        // 旧的父控件移除监听
+        self.removeAbserver()
+        
+        // 新的父控件
+        guard let superView = newSuperview as? UIScrollView else {
+            return
+        }
+        scrollView = superView
+        
+        self.width = superView.width // 设置宽度
+        self.x = 0 // 设置位置
+        
+        // 记录UIScrollView
+        self.scrollView = newSuperview as! UIScrollView?
+        // 设置永远支持垂直弹簧效果
+        self.scrollView?.alwaysBounceVertical = true
+        // 记录UIScrollView最开始的contentInset
+        self.scrollViewOriginalInset = superView.inset
+        
+        self.addObserver()
+    }
+    
+    // MARK:KVO监听
+    private func addObserver() {
+        scrollView?.addObserver(self, forKeyPath: RefreshConst.keyPathContentOffset, options: [.new,.old], context: nil)
+        scrollView?.addObserver(self, forKeyPath: RefreshConst.keyPathContentSize, options: [.new,.old], context: nil)
+        self.pan = (self.scrollView?.panGestureRecognizer)!
+        self.pan.addObserver(self, forKeyPath: RefreshConst.keyPathPanState, options: [.new,.old], context: nil)
+    }
+    
+    private func removeAbserver() {
+        self.superview?.removeObserver(self, forKeyPath: RefreshConst.keyPathContentOffset)
+        self.superview?.removeObserver(self, forKeyPath: RefreshConst.keyPathContentSize)
+        
+        if self.pan != nil {
+            self.pan.removeObserver(self, forKeyPath: RefreshConst.keyPathPanState)
+            self.pan = nil;
+        }
+    }
+    
+    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if !self.isUserInteractionEnabled {
+            return
+        }
+        
+        if keyPath == RefreshConst.keyPathContentSize {
+            self.scrollViewContentSizeDidChange(change: change!)
+        }
+        if self.isHidden {
+            return
+        }
+        
+        if keyPath == RefreshConst.keyPathContentOffset {
+            self.scrollViewContentOffsetDidChange(change: change!)
+        } else if (keyPath == RefreshConst.keyPathPanState) {
+            self.scrollViewPanStateDidChange(change: change!)
+        }
+    }
 }

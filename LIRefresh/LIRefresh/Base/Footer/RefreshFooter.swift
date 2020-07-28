@@ -1,80 +1,131 @@
 //
-//  RefreshFooter.swift
-//  LIRefresh
+//  GRefreshFooter.swift
+//  GRefresh
 //
-//  Created by wangxu on 2020/5/19.
-//  Copyright © 2020 wangxu. All rights reserved.
+//  Created by hyku on 2018/1/30.
+//  Copyright © 2018年 hyku. All rights reserved.
 //
 
 import UIKit
 
-public class RefreshFooter: RefreshComponent {
-    // Mark:  当底部控件出现多少时就会自动h刷新（默认为1.0）
-    public var atuomaticallyRefreshPercent: CGFloat = 1.0
-    public override var pullingPercent: CGFloat {
-        willSet {
-            switch state {
-            case .idle,.none,.nomoreData,.pulling:
-                self.alpha = newValue
-            default:break
+open class RefreshFooter: RefreshComponent {
+    
+    /// 是否自动刷新（默认是）
+    var automaticallyRefresh = true
+    
+    /// 当底部控件出现多少时就自动刷新(默认为1.0，也就是底部控件完全出现时，才会自动刷新)
+    var triggerAutomaticallyRefreshPercent:CGFloat = 0.0
+    
+    override var state: RefreshState{
+        didSet{
+            if oldValue == state {
+                return
             }
-        }
-    }
-    public override var state: RefreshState {
-        willSet {
-            guard var indeedScrollView = self.scrollView else { return }
-            switch newValue {
-            case .refreshing:
-                UIView.animate(withDuration: 0.3, animations: {
-                    indeedScrollView.li.bottom = self.li.height
-                }) { (finish) in
-                    
+            super.state = state
+            
+            if (state == .refreshing) {
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: {
+                    self.executeRefreshingCallback()
+                })
+                UIView.animate(withDuration: 0.3) {
+                    self.scrollView!.insetBottom = self.height
                 }
-                break
-            case .idle:
-                UIView.animate(withDuration: 0.3, animations: {
-                    indeedScrollView.li.bottom = 0
-                    self.alpha = 0.0
-                }) { (finish) in
-                    
+            } else if (state == .noMoreData || state == .idle) {
+                if (.refreshing == oldValue) {
+                    if (self.endRefreshingCompletionBlock != nil) {
+                        self.endRefreshingCompletionBlock!();
+                    }
                 }
-                break
-            default:break
+                UIView.animate(withDuration: 0.3) {
+                    self.scrollView!.insetBottom = 0
+                }
             }
         }
     }
     
-    static public func footerWithRefreshing(block: @escaping RefreshComponentRefreshingBlock) -> RefreshFooter {
-        let footer = self.init()
+    open override var isHidden: Bool{
+        didSet{
+            let lastHidden = self.isHidden
+            super.isHidden = isHidden
+            
+            if lastHidden == false && isHidden == true{
+                self.state = .idle
+                self.scrollView!.insetBottom -= self.height
+            }else if lastHidden == true && isHidden == false{
+                self.scrollView!.insetBottom += self.height
+                
+                // 设置位置
+                self.y = self.scrollView!.contentHeight
+            }
+            
+        }
+    }
+    
+    // MARK: - 构造方法
+    class func footerWithRefreshing(block:@escaping RefreshComponentRefreshingBlock) -> RefreshFooter {
+        let footer:RefreshFooter = self.init()
         footer.refreshingBlock = block
-        return footer
+        return footer;
     }
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        var sf = self
-        sf.li.height = 50
+    /// 是否加载完毕
+    public func setNoMoreData(noMoreData:Bool) {
+        if noMoreData == true{
+            self.state = .noMoreData
+        }else{
+            self.state = .idle
+        }
     }
-    public override func placeSubViews() {
-        super.placeSubViews()
-        var sf = self
-        sf.li.y = (self.scrollView?.li.contentH ?? 0)
+    
+    // MARK: - 实现父类的方法
+    override func prepare() {
+        super.prepare()
+        
+        self.height = RefreshConst.refreshFooterHeight
+        
+        // 默认底部控件100%出现时才会自动刷新
+        self.triggerAutomaticallyRefreshPercent = 1.0
+        
+        // 设置为默认状态
+        self.automaticallyRefresh = true
+        
     }
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    
+    open override func willMove(toSuperview newSuperview: UIView?) {
+        super.willMove(toSuperview: newSuperview)
+        
+        // 新的父控件
+        if newSuperview != nil {
+            if self.isHidden == false {
+                self.scrollView?.insetBottom += self.height;
+            }
+            // 设置位置
+            self.y = self.scrollView!.contentHeight;
+        }
+        // 被移除了
+        else{
+            if (self.isHidden == false) {
+                self.scrollView!.insetBottom -= self.height;
+            }
+        }
     }
-    public override func scrollViewContentOffsetDid(change: [NSKeyValueChangeKey : Any]) {
-        super.scrollViewContentOffsetDid(change: change)
-        // Mark:  如果正在刷新，直接返回
-        if self.state == .refreshing { return }
+    
+    override func scrollViewContentSizeDidChange(change: [NSKeyValueChangeKey : Any]?) {
+        super.scrollViewContentSizeDidChange(change: change)
+        // 设置位置
+        self.y = self.scrollView!.contentHeight;
+    }
+    
+    override func scrollViewContentOffsetDidChange(change: [NSKeyValueChangeKey : Any]) {
+        super.scrollViewContentOffsetDidChange(change: change)
         guard let indeedScrollView = self.scrollView else { return }
         let offsetY = indeedScrollView.li.offsetY
         // Mark:  尾部控件刚好出现的offsetY
         let pullingPercent = (offsetY - happenOffSetY) / self.li.height
-        if indeedScrollView.isDragging {
+        if indeedScrollView.isDragging == true {
             self.pullingPercent = pullingPercent
             // Mark:  普通和即将刷新的临界点
-            let normalPullingOffsetY = happenOffSetY + self.li.height * atuomaticallyRefreshPercent
+            let normalPullingOffsetY = happenOffSetY + self.li.height * triggerAutomaticallyRefreshPercent
             switch state {
             // Mark:闲置
             case .idle:
@@ -90,16 +141,31 @@ public class RefreshFooter: RefreshComponent {
                 break
             default: break
             }
-        }else if state == .pulling {
-            // Mark:  调用刷新
-            beginRefreshing()
-            if let block = refreshingBlock {
-                block()
+            return
+        }
+        if self.state != .pulling || self.automaticallyRefresh == false || self.y == 0{
+            return
+        }
+        
+        // 内容超过一个屏幕
+        if self.scrollView!.insetTop + self.scrollView!.contentHeight > self.scrollView!.height{
+            
+            let tmp = self.scrollView!.contentHeight - self.scrollView!.height + self.height * self.triggerAutomaticallyRefreshPercent + self.scrollView!.insetBottom - self.height
+            
+            if self.scrollView!.offsetY >= tmp{
+                
+                // 防止手松开时连续调用
+                let old = change[NSKeyValueChangeKey.oldKey] as! CGPoint
+                let new = change[NSKeyValueChangeKey.newKey] as! CGPoint
+                if new.y <= old.y{
+                    return
+                }
+                // 当底部刷新控件完全出现时，才刷新
+                self.beginRefreshing()
             }
-        }else if pullingPercent < 1 {
-            self.pullingPercent = pullingPercent
         }
     }
+    
     var happenOffSetY: CGFloat {
         let deltaH = heightForContentBreakView
         if  deltaH > 0 {
@@ -116,6 +182,29 @@ public class RefreshFooter: RefreshComponent {
             return indeedScrollView.contentSize.height - height
         } else {
             return 0
+        }
+    }
+    
+    override func scrollViewPanStateDidChange(change: [NSKeyValueChangeKey : Any]?) {
+        super.scrollViewPanStateDidChange(change: change)
+        if self.state != .pulling {
+            return
+        }
+        
+        //手松开
+        if self.scrollView?.panGestureRecognizer.state == UIGestureRecognizer.State.ended {
+            
+            // 不够一个屏幕
+            if (self.scrollView?.insetTop)! + (self.scrollView?.contentHeight)! <= (self.scrollView?.height)! {
+                // 向上拽
+                if (self.scrollView?.offsetY)! >= -(self.scrollView?.insetTop)! {
+                    self.beginRefreshing()
+                }
+            }else{
+                if (self.scrollView?.offsetY)! >= (self.scrollView?.contentHeight)! + (self.scrollView?.insetBottom)! - (self.scrollView?.height)! {
+                    self.beginRefreshing()
+                }
+            }
         }
     }
 }

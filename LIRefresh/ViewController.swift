@@ -30,7 +30,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         tablview.backgroundColor = .blue
         self.tablview.delegate = self
         self.tablview.dataSource = self
-//        self.tablview.tableHeaderView = UITableViewHeaderFooterView(frame: CGRect(x: 0, y: 0, width: view.bounds.size.width, height: 40))
         self.tablview.li.header = NormalRefreshHeader.headerWithRefreshing(block: {[weak self] in
             self?.loadMoreData()
         })
