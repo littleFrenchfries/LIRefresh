@@ -27,15 +27,15 @@ public enum RefreshState {
 }
 
 /// 进入刷新状态的回调
-typealias RefreshComponentRefreshingBlock = () -> (Void)
+public typealias RefreshComponentRefreshingBlock = () -> (Void)
 
 /// 开始刷新后的回调(进入刷新状态后的回调)
-typealias RefreshComponentBeginRefreshingCompletionBlock = () -> (Void)
+public typealias RefreshComponentBeginRefreshingCompletionBlock = () -> (Void)
 
 ///  结束刷新后的回调
-typealias RefreshComponentEndRefreshingCompletionBlock = () -> (Void)
+public typealias RefreshComponentEndRefreshingCompletionBlock = () -> (Void)
 
-open class RefreshComponent: UIView {
+public class RefreshComponent: UIView {
 
     ///  刷新状态 一般交给子类内部实现
     var state : RefreshState = .idle{
@@ -93,7 +93,7 @@ open class RefreshComponent: UIView {
     
     // MARK: - 刷新状态控制
     ///  进入刷新状态
-    func beginRefreshing() {
+   public func beginRefreshing() {
         self.pullingPercent = 1.0
         if (self.window != nil) {
             self.state = .refreshing
@@ -106,23 +106,23 @@ open class RefreshComponent: UIView {
             }
         }
     }
-    func beginRefreshing(completionBlock:@escaping RefreshComponentBeginRefreshingCompletionBlock){
+    public func beginRefreshing(completionBlock:@escaping RefreshComponentBeginRefreshingCompletionBlock){
         self.beginRefreshingCompletionBlock = completionBlock
         self.beginRefreshing()
     }
     
     /// 结束刷新状态
-    func endRefreshing() {
+    public func endRefreshing() {
         self.state = .idle
     }
-    func endRefreshing(completionBlock:@escaping RefreshComponentEndRefreshingCompletionBlock){
+    public func endRefreshing(completionBlock:@escaping RefreshComponentEndRefreshingCompletionBlock){
         self.endRefreshingCompletionBlock = completionBlock
         self.endRefreshing()
     }
     
     
     /// 是否正在刷新
-    func isRefreshing() -> Bool {
+    public func isRefreshing() -> Bool {
         return self.state == .refreshing || self.state == .willRefresh
     }
     
@@ -135,7 +135,7 @@ open class RefreshComponent: UIView {
         self.backgroundColor = UIColor.clear
     }
     
-    func executeRefreshingCallback() {
+    public func executeRefreshingCallback() {
         if ((self.refreshingBlock) != nil) {
             self.refreshingBlock!();
         }

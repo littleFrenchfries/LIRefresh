@@ -8,7 +8,7 @@
 
 import UIKit
 
-open class RefreshFooter: RefreshComponent {
+public class RefreshFooter: RefreshComponent {
     
     /// 是否自动刷新（默认是）
     var automaticallyRefresh = true
@@ -62,7 +62,7 @@ open class RefreshFooter: RefreshComponent {
     }
     
     // MARK: - 构造方法
-    class func footerWithRefreshing(block:@escaping RefreshComponentRefreshingBlock) -> RefreshFooter {
+    public class func footerWithRefreshing(block:@escaping RefreshComponentRefreshingBlock) -> RefreshFooter {
         let footer:RefreshFooter = self.init()
         footer.refreshingBlock = block
         return footer;
@@ -102,7 +102,7 @@ open class RefreshFooter: RefreshComponent {
             // 设置位置
             self.y = self.scrollView!.contentHeight;
         }
-        // 被移除了
+            // 被移除了
         else{
             if (self.isHidden == false) {
                 self.scrollView!.insetBottom -= self.height;

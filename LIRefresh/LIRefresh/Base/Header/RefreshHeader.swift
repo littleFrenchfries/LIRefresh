@@ -8,13 +8,13 @@
 
 import UIKit
 
-open class RefreshHeader: RefreshComponent {
+public class RefreshHeader: RefreshComponent {
     
     var insetTDelta : CGFloat = 0.0
     
     
     // MARK: - 构造方法
-    class func headerWithRefreshing(block:@escaping RefreshComponentRefreshingBlock) -> RefreshHeader {
+    public class func headerWithRefreshing(block:@escaping RefreshComponentRefreshingBlock) -> RefreshHeader {
         let header:RefreshHeader = self.init()
         header.refreshingBlock = block
         return header;
@@ -107,7 +107,7 @@ open class RefreshHeader: RefreshComponent {
             }
         }
     }
-
+    
     override var state: RefreshState{
         didSet{
             if oldValue == state {
@@ -115,7 +115,7 @@ open class RefreshHeader: RefreshComponent {
             }
             super.state = state
             
-             // 根据状态做事情
+            // 根据状态做事情
             if state == .idle {
                 if(oldValue != .refreshing){return}
                 // 恢复Inset
@@ -131,7 +131,7 @@ open class RefreshHeader: RefreshComponent {
             }else if(state == .refreshing){
                 DispatchQueue.main.async {
                     UIView.animate(withDuration: RefreshConst.fastAnimationDuration, animations: {
-
+                        
                         let top: CGFloat = self.scrollViewOriginalInset.top + self.height
                         // 增加滚动区域top
                         self.scrollView?.insetTop = top
@@ -146,7 +146,7 @@ open class RefreshHeader: RefreshComponent {
         }
     }
     
-    override func endRefreshing() {
+    public override func endRefreshing() {
         DispatchQueue.main.async {
             self.state = .idle;
         }
