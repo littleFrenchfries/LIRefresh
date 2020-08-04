@@ -27,17 +27,11 @@ public class RefreshFooter: RefreshComponent {
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: {
                     self.executeRefreshingCallback()
                 })
-                UIView.animate(withDuration: 0.3) {
-                    self.scrollView!.insetBottom = self.height
-                }
             } else if (state == .noMoreData || state == .idle) {
                 if (.refreshing == oldValue) {
                     if (self.endRefreshingCompletionBlock != nil) {
                         self.endRefreshingCompletionBlock!();
                     }
-                }
-                UIView.animate(withDuration: 0.3) {
-                    self.scrollView!.insetBottom = 0
                 }
             }
         }
