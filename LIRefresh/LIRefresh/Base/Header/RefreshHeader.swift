@@ -108,7 +108,7 @@ open class RefreshHeader: RefreshComponent {
         }
     }
     
-    override var state: RefreshState{
+    open override var state: RefreshState{
         didSet{
             if oldValue == state {
                 return
