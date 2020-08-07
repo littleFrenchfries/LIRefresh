@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class NormalRefreshHeader: RefreshHeader {
+open class NormalRefreshHeader: RefreshHeader {
     fileprivate let circleLayer = CAShapeLayer()
     fileprivate let arrowLayer = CAShapeLayer()
     fileprivate let strokeColor = UIColor(red: 135.0/255.0, green: 136.0/255.0, blue: 137.0/255.0, alpha: 1.0)
@@ -103,7 +103,7 @@ public class NormalRefreshHeader: RefreshHeader {
         setUpCircleLayer()
         setUpArrowLayer()
     }
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     public override func placeSubviews() {

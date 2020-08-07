@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class RefreshHeader: RefreshComponent {
+open class RefreshHeader: RefreshComponent {
     
     var insetTDelta : CGFloat = 0.0
     

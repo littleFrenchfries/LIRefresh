@@ -35,7 +35,7 @@ public typealias RefreshComponentBeginRefreshingCompletionBlock = () -> (Void)
 ///  结束刷新后的回调
 public typealias RefreshComponentEndRefreshingCompletionBlock = () -> (Void)
 
-public class RefreshComponent: UIView {
+open class RefreshComponent: UIView {
 
     ///  刷新状态 一般交给子类内部实现
     var state : RefreshState = .idle{

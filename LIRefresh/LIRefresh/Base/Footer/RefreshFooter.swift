@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class RefreshFooter: RefreshComponent {
+open class RefreshFooter: RefreshComponent {
     
     /// 是否自动刷新（默认是）
     var automaticallyRefresh = true

@@ -8,7 +8,7 @@
 
 import UIKit
 
-public class NormalRefreshFooter: RefreshFooter {
+open class NormalRefreshFooter: RefreshFooter {
     fileprivate let circleLayer = CAShapeLayer()
     fileprivate let strokeColor = UIColor(red: 135.0/255.0, green: 136.0/255.0, blue: 137.0/255.0, alpha: 1.0)
     
