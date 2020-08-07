@@ -57,7 +57,7 @@ open class NormalRefreshFooter: RefreshFooter {
         super.init(frame: frame)
         setUpCircleLayer()
     }
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     public override func placeSubviews() {
