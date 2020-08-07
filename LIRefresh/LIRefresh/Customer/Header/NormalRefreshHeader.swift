@@ -78,12 +78,12 @@ open class NormalRefreshHeader: RefreshHeader {
         return label
     }()
     /// 状态对应的问题
-    public var stateTitles: [RefreshState: String] = [
+    open var stateTitles: [RefreshState: String] = [
         .idle: "下拉刷新",
         .pulling: "松开刷新",
         .refreshing: "刷新中"
     ]
-    public override var state: RefreshState {
+    open override var state: RefreshState {
         willSet {
             stateLabel.text = stateTitles[newValue]
             if newValue == .idle {
@@ -106,7 +106,7 @@ open class NormalRefreshHeader: RefreshHeader {
     required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    public override func placeSubviews() {
+    open override func placeSubviews() {
         super.placeSubviews()
         //放置Views和Layer
         self.arrowLayer.position = CGPoint(x: (self.li.width - lastUpdatedTimeLabel.li.textWidth) * 0.5 - 40, y: self.frame.height/2)
