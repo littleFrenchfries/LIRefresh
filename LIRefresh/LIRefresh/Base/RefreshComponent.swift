@@ -38,7 +38,7 @@ public typealias RefreshComponentEndRefreshingCompletionBlock = () -> (Void)
 open class RefreshComponent: UIView {
 
     ///  刷新状态 一般交给子类内部实现
-    var state : RefreshState = .idle{
+    open var state : RefreshState = .idle{
         
         didSet{
             /// 加入主队列的目的是等setState:方法调用完毕、设置完文字后再去布局子控件
@@ -60,13 +60,13 @@ open class RefreshComponent: UIView {
     var endRefreshingCompletionBlock : RefreshComponentEndRefreshingCompletionBlock?
 
     /// 拉拽的百分比(交给子类重写)
-    var pullingPercent : CGFloat = 0.0
+    open var pullingPercent : CGFloat = 0.0
     
     /// 父控件
-    public var scrollView: UIScrollView?
+    open var scrollView: UIScrollView?
     
     /// 记录scrollView刚开始的inset
-    public var scrollViewOriginalInset: UIEdgeInsets = UIEdgeInsets.zero
+    open var scrollViewOriginalInset: UIEdgeInsets = UIEdgeInsets.zero
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -93,7 +93,7 @@ open class RefreshComponent: UIView {
     
     // MARK: - 刷新状态控制
     ///  进入刷新状态
-   public func beginRefreshing() {
+   open func beginRefreshing() {
         self.pullingPercent = 1.0
         if (self.window != nil) {
             self.state = .refreshing
@@ -106,23 +106,23 @@ open class RefreshComponent: UIView {
             }
         }
     }
-    public func beginRefreshing(completionBlock:@escaping RefreshComponentBeginRefreshingCompletionBlock){
+    open func beginRefreshing(completionBlock:@escaping RefreshComponentBeginRefreshingCompletionBlock){
         self.beginRefreshingCompletionBlock = completionBlock
         self.beginRefreshing()
     }
     
     /// 结束刷新状态
-    public func endRefreshing() {
+    open func endRefreshing() {
         self.state = .idle
     }
-    public func endRefreshing(completionBlock:@escaping RefreshComponentEndRefreshingCompletionBlock){
+    open func endRefreshing(completionBlock:@escaping RefreshComponentEndRefreshingCompletionBlock){
         self.endRefreshingCompletionBlock = completionBlock
         self.endRefreshing()
     }
     
     
     /// 是否正在刷新
-    public func isRefreshing() -> Bool {
+    open func isRefreshing() -> Bool {
         return self.state == .refreshing || self.state == .willRefresh
     }
     
@@ -135,7 +135,7 @@ open class RefreshComponent: UIView {
         self.backgroundColor = UIColor.clear
     }
     
-    public func executeRefreshingCallback() {
+    open func executeRefreshingCallback() {
         if ((self.refreshingBlock) != nil) {
             self.refreshingBlock!();
         }

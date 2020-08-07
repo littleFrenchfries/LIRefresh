@@ -12,13 +12,14 @@ open class NormalRefreshFooter: RefreshFooter {
     fileprivate let circleLayer = CAShapeLayer()
     fileprivate let strokeColor = UIColor(red: 135.0/255.0, green: 136.0/255.0, blue: 137.0/255.0, alpha: 1.0)
     
-    override public var pullingPercent: CGFloat {
+    override open var pullingPercent: CGFloat {
         didSet {
             //这里可以根据百分比 绘制进度效果
             let adjustPercent = max(min(1.0, pullingPercent),0.0)
             self.circleLayer.strokeEnd = 0.05 + 0.9 * adjustPercent
         }
     }
+    
     lazy var stateLabel: UILabel = {
         var label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 14)
@@ -32,12 +33,14 @@ open class NormalRefreshFooter: RefreshFooter {
         addSubview(label)
         return label
     }()
+    
     /// 状态对应的问题
     public var stateTitles: [RefreshState: String] = [
         .idle: "上拉加载更多",
         .pulling: "松开刷新",
         .refreshing: "加载中..."
     ]
+    
     public override var state: RefreshState {
         willSet {
             stateLabel.text = stateTitles[newValue]
@@ -53,10 +56,12 @@ open class NormalRefreshFooter: RefreshFooter {
             }
         }
     }
+    
     public override init(frame: CGRect) {
         super.init(frame: frame)
         setUpCircleLayer()
     }
+    
     public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

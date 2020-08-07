@@ -13,7 +13,7 @@ open class NormalRefreshHeader: RefreshHeader {
     fileprivate let arrowLayer = CAShapeLayer()
     fileprivate let strokeColor = UIColor(red: 135.0/255.0, green: 136.0/255.0, blue: 137.0/255.0, alpha: 1.0)
     
-    override public var pullingPercent: CGFloat {
+    override open var pullingPercent: CGFloat {
         didSet {
             //这里可以根据百分比 绘制进度效果
             let adjustPercent = max(min(1.0, pullingPercent),0.0)
