@@ -35,11 +35,11 @@ open class NormalRefreshFooter: RefreshFooter {
     }()
     
     /// 状态对应的问题
-    open var stateTitles: [RefreshState: String] = [
+    open var stateTitles: [RefreshState: String] {[
         .idle: "上拉加载更多",
         .pulling: "松开刷新",
         .refreshing: "加载中..."
-    ]
+        ]}
     
     open override var state: RefreshState {
         willSet {
